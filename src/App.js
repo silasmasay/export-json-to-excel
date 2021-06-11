@@ -15,41 +15,65 @@ const generateXlsxTemplate = async () => {
 
 	const { data } = await api.get('ProspectEmpresa');
 
-	const worksheet = workbook.addWorksheet('Prospect Empresas');
-	const wsRow = worksheet.getRow(1);
+	const worksheet = workbook.addWorksheet('Prospect - Empresas');
 
-	// worksheet.addImage(image, 'A1:F3');
-	// worksheet.addBackgroundImage(image, 'A1:F3');
+	worksheet.mergeCells('C1', 'F4');
+    const titleRow = worksheet.getCell('C1');
+    titleRow.value = 'teste do título';
 
-    wsRow.font = {
+    titleRow.font = {
 		name: 'Calibri',
-		size: 12,
+		size: 16,
+		underline: 'single',
 		bold: true,
 		color: { argb: '0085A3' }
     }
 
-	wsRow.fill = {
-		type: 'pattern',
-		pattern: 'solid',
-		fgColor: { argb:'F08080' },
-	}
+    titleRow.alignment = { vertical: 'middle', horizontal: 'center' }
 
-	wsRow.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } }
+	worksheet.mergeCells('A1:B4');
+	worksheet.addImage(image, 'A1:B4');
+	
+	// const wsRow = worksheet.getRow(1);
 
-	worksheet.columns = Object.keys(data[0]).map((header) => ({
-		header,
-		key: header,
-		outlineLevel: 1,
-	}));
+    // wsRow.font = {
+	// 	name: 'Calibri',
+	// 	size: 12,
+	// 	bold: true,
+	// 	color: { argb: '0085A3' }
+    // }
+
+	// wsRow.fill = {
+	// 	type: 'pattern',
+	// 	pattern: 'solid',
+	// 	fgColor: { argb:'F08080' },
+	// }
+
+	// wsRow.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } }
+
+	const headerRow = worksheet.addRow(Object.keys(data[0]).map((header) => header));
+	
+	headerRow.eachCell((cell, number) => {
+		cell.fill = {
+			type: 'pattern',
+			pattern: 'solid',
+			fgColor: { argb: '4167B8' },
+			bgColor: { argb: '' }
+		}
+		cell.font = {
+			bold: true,
+			color: { argb: 'FFFFFF' },
+			size: 12
+		}
+	});
 
 	data.forEach((row) => worksheet.addRow(row));
 
 	const buffer = await workbook.xlsx.writeBuffer();
 
 	saveAs(
-		new Blob([buffer], 
-		{
-			type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+		new Blob([buffer], {
+			type: 'application/octet-stream'
 		}), 'sample.xlsx'
 	);
 }
